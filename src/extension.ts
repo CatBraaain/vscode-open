@@ -19,8 +19,8 @@ class OpenController implements vscode.Disposable {
   constructor() {
 
     const subscriptions: vscode.Disposable[] = [];
-    const disposable = vscode.commands.registerCommand('workbench.action.files.openFileWithDefaultApplication', (uri: vscode.Uri | undefined) => {
-      this.open(uri);
+    const disposable = vscode.commands.registerCommand('workbench.action.files.openFileWithDefaultApplication', (uri: vscode.Uri | undefined, uris: vscode.Uri[] | undefined) => {
+      this.open(uri, uris);
     });
     subscriptions.push(disposable);
 
@@ -48,7 +48,16 @@ class OpenController implements vscode.Disposable {
     this._disposable.dispose();
   }
 
-  private open(uri: vscode.Uri | undefined): void {
+  private open(uri: vscode.Uri | undefined, uris: vscode.Uri[] | undefined): void {
+    if (uris && uris.some((uri) => uri?.scheme)) {
+      uris
+        .filter((uri) => uri?.scheme)
+        .forEach((uri) => {
+          console.log("Opening from uris", uri.toString());
+          this.openFile(uri.toString());
+        });
+      return;
+    }
 
     if (uri?.scheme) {
       console.log("Opening from uri", uri.toString());
